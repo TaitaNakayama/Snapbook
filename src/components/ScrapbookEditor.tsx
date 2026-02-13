@@ -76,6 +76,36 @@ export function ScrapbookEditor({
     }
   };
 
+  const handleMoveMemory = async (index: number, direction: "up" | "down") => {
+    const targetIndex = direction === "up" ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= memories.length) return;
+
+    // Swap in array
+    const newMemories = [...memories];
+    [newMemories[index], newMemories[targetIndex]] = [
+      newMemories[targetIndex],
+      newMemories[index],
+    ];
+
+    // Assign sort_order 1..N to lock in the new arrangement
+    const ordered = newMemories.map((m, i) => ({
+      ...m,
+      sort_order: i + 1,
+    }));
+
+    setMemories(ordered);
+
+    // Persist all sort_orders to DB
+    await Promise.all(
+      ordered.map((m) =>
+        supabase
+          .from("memories")
+          .update({ sort_order: m.sort_order } as never)
+          .eq("id", m.id)
+      )
+    );
+  };
+
   return (
     <div className="scrapbook-bg min-h-screen">
       {/* Header */}
@@ -102,7 +132,7 @@ export function ScrapbookEditor({
         {/* Title editor */}
         <div className="bg-white/80 backdrop-blur-sm rounded-lg p-6 mb-8 shadow-sm border border-parchment-dark/20">
           <h2 className="font-display text-xl font-semibold text-brown-deep mb-4">
-            Scrapbook Details
+            Snapbook Details
           </h2>
           <div className="flex gap-3 items-end flex-wrap">
             <div className="flex-1 min-w-[140px]">
@@ -159,16 +189,65 @@ export function ScrapbookEditor({
           </div>
         ) : (
           <div className="space-y-6">
-            {memories.map((memory) => (
-              <MemoryCard
-                key={memory.id}
-                memory={memory}
-                scrapbookId={scrapbook.id}
-                userId={userId}
-                onUpdate={handleUpdateMemory}
-                onDelete={() => handleDeleteMemory(memory.id)}
-              />
+            {memories.map((memory, index) => (
+              <div key={memory.id} className="relative">
+                {/* Reorder buttons */}
+                <div className="absolute -left-10 top-1/2 -translate-y-1/2 flex flex-col gap-1 max-sm:hidden">
+                  <button
+                    onClick={() => handleMoveMemory(index, "up")}
+                    disabled={index === 0}
+                    className="w-7 h-7 flex items-center justify-center rounded-full bg-white/80 border border-parchment-dark/20 text-brown-deep/50 hover:text-brown-deep hover:bg-white disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer text-xs"
+                    title="Move up"
+                  >
+                    &#9650;
+                  </button>
+                  <button
+                    onClick={() => handleMoveMemory(index, "down")}
+                    disabled={index === memories.length - 1}
+                    className="w-7 h-7 flex items-center justify-center rounded-full bg-white/80 border border-parchment-dark/20 text-brown-deep/50 hover:text-brown-deep hover:bg-white disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer text-xs"
+                    title="Move down"
+                  >
+                    &#9660;
+                  </button>
+                </div>
+
+                {/* Mobile reorder buttons (inside card) */}
+                <div className="sm:hidden flex gap-2 mb-2 justify-end">
+                  <button
+                    onClick={() => handleMoveMemory(index, "up")}
+                    disabled={index === 0}
+                    className="w-8 h-8 flex items-center justify-center rounded-full bg-white/80 border border-parchment-dark/20 text-brown-deep/50 hover:text-brown-deep disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer text-xs"
+                  >
+                    &#9650;
+                  </button>
+                  <button
+                    onClick={() => handleMoveMemory(index, "down")}
+                    disabled={index === memories.length - 1}
+                    className="w-8 h-8 flex items-center justify-center rounded-full bg-white/80 border border-parchment-dark/20 text-brown-deep/50 hover:text-brown-deep disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer text-xs"
+                  >
+                    &#9660;
+                  </button>
+                </div>
+
+                <MemoryCard
+                  memory={memory}
+                  scrapbookId={scrapbook.id}
+                  userId={userId}
+                  onUpdate={handleUpdateMemory}
+                  onDelete={() => handleDeleteMemory(memory.id)}
+                />
+              </div>
             ))}
+
+            {/* Bottom add memory button */}
+            <div className="flex justify-center pt-4">
+              <button
+                onClick={handleAddMemory}
+                className="bg-brown-warm hover:bg-brown-warm/90 text-white rounded-md px-5 py-2.5 text-sm font-medium transition-colors cursor-pointer"
+              >
+                + Add Memory
+              </button>
+            </div>
           </div>
         )}
       </main>

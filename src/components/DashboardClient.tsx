@@ -88,13 +88,13 @@ export function DashboardClient({
       <main className="max-w-4xl mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-8">
           <h2 className="font-display text-3xl font-semibold text-brown-deep">
-            Your Scrapbooks
+            Your Snapbooks
           </h2>
           <button
             onClick={() => setShowForm(!showForm)}
             className="bg-brown-deep hover:bg-brown-deep/90 text-white rounded-lg px-5 py-2.5 font-medium transition-colors cursor-pointer"
           >
-            + New Scrapbook
+            + New Snapbook
           </button>
         </div>
 
@@ -105,7 +105,7 @@ export function DashboardClient({
             className="bg-white/80 backdrop-blur-sm rounded-lg p-6 mb-8 shadow-sm border border-parchment-dark/20"
           >
             <h3 className="font-handwritten text-2xl text-brown-deep mb-4">
-              Create a new scrapbook
+              Create a new snapbook
             </h3>
             <div className="flex gap-4 items-end flex-wrap">
               <div className="flex-1 min-w-[160px]">
@@ -116,7 +116,7 @@ export function DashboardClient({
                   type="text"
                   value={nameA}
                   onChange={(e) => setNameA(e.target.value)}
-                  placeholder="e.g. Taita"
+                  placeholder="Taita"
                   className="w-full rounded-md border border-parchment-dark/30 px-3 py-2 text-brown-deep bg-white focus:outline-none focus:ring-2 focus:ring-brown-warm/30"
                   required
                 />
@@ -132,7 +132,7 @@ export function DashboardClient({
                   type="text"
                   value={nameB}
                   onChange={(e) => setNameB(e.target.value)}
-                  placeholder="e.g. Alex"
+                  placeholder="Vienna"
                   className="w-full rounded-md border border-parchment-dark/30 px-3 py-2 text-brown-deep bg-white focus:outline-none focus:ring-2 focus:ring-brown-warm/30"
                   required
                 />
@@ -152,7 +152,7 @@ export function DashboardClient({
         {scrapbooks.length === 0 ? (
           <div className="text-center py-16">
             <p className="font-handwritten text-3xl text-brown-deep/40 mb-2">
-              No scrapbooks yet
+              No snapbooks yet
             </p>
             <p className="text-brown-deep/50">
               Create your first one to start saving memories.

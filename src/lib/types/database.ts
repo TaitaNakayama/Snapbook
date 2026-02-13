@@ -37,6 +37,7 @@ export type Database = {
           song_title: string | null;
           song_artist: string | null;
           song_url: string | null;
+          sort_order: number;
           created_at: string;
         };
         Insert: {
@@ -47,6 +48,7 @@ export type Database = {
           song_title?: string | null;
           song_artist?: string | null;
           song_url?: string | null;
+          sort_order?: number;
           created_at?: string;
         };
         Update: {
@@ -57,6 +59,7 @@ export type Database = {
           song_title?: string | null;
           song_artist?: string | null;
           song_url?: string | null;
+          sort_order?: number;
           created_at?: string;
         };
         Relationships: [

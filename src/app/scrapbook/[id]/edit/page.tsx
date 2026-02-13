@@ -30,6 +30,7 @@ export default async function EditScrapbookPage({
     .from("memories")
     .select("*, memory_photos(*)")
     .eq("scrapbook_id", id)
+    .order("sort_order", { ascending: true })
     .order("date", { ascending: true, nullsFirst: false })
     .order("created_at", { ascending: true })
     .returns<MemoryWithPhotos[]>();
