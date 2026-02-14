@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useRef } from "react";
-import heic2any from "heic2any";
 import { createClient } from "@/lib/supabase/client";
 import type { MemoryWithPhotos, MemoryPhoto } from "@/lib/types/database";
 
@@ -34,6 +33,7 @@ export function MemoryCard({
   const [songUrl, setSongUrl] = useState(memory.song_url ?? "");
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [converting, setConverting] = useState(false);
   const [dragOver, setDragOver] = useState(false);
 
   const handleSave = async () => {
@@ -68,6 +68,8 @@ export function MemoryCard({
 
       if (isHeic(file)) {
         try {
+          setConverting(true);
+          const heic2any = (await import("heic2any")).default;
           const converted = await heic2any({
             blob: file,
             toType: "image/jpeg",
@@ -78,6 +80,8 @@ export function MemoryCard({
         } catch (err) {
           console.error("HEIC conversion error:", err);
           continue;
+        } finally {
+          setConverting(false);
         }
       }
 
@@ -259,7 +263,9 @@ export function MemoryCard({
               }}
               className="hidden"
             />
-            {uploading ? (
+            {converting ? (
+              <p className="text-sm text-brown-deep/60">Converting HEIC photo...</p>
+            ) : uploading ? (
               <p className="text-sm text-brown-deep/60">Uploading...</p>
             ) : (
               <p className="text-sm text-brown-deep/50">
