@@ -1,8 +1,16 @@
 "use client";
 
 import { useState, useRef } from "react";
+import heic2any from "heic2any";
 import { createClient } from "@/lib/supabase/client";
 import type { MemoryWithPhotos, MemoryPhoto } from "@/lib/types/database";
+
+function isHeic(file: File): boolean {
+  const type = file.type.toLowerCase();
+  if (type === "image/heic" || type === "image/heif") return true;
+  const ext = file.name.split(".").pop()?.toLowerCase();
+  return ext === "heic" || ext === "heif";
+}
 
 export function MemoryCard({
   memory,
@@ -53,15 +61,32 @@ export function MemoryCard({
     const newPhotos: MemoryPhoto[] = [];
 
     for (const file of Array.from(files)) {
-      if (!file.type.startsWith("image/")) continue;
+      if (!file.type.startsWith("image/") && !isHeic(file)) continue;
 
-      const ext = file.name.split(".").pop() || "jpg";
+      let uploadBlob: Blob = file;
+      let ext = file.name.split(".").pop() || "jpg";
+
+      if (isHeic(file)) {
+        try {
+          const converted = await heic2any({
+            blob: file,
+            toType: "image/jpeg",
+            quality: 0.85,
+          });
+          uploadBlob = Array.isArray(converted) ? converted[0] : converted;
+          ext = "jpg";
+        } catch (err) {
+          console.error("HEIC conversion error:", err);
+          continue;
+        }
+      }
+
       const fileName = `${crypto.randomUUID()}.${ext}`;
       const storagePath = `${userId}/${scrapbookId}/${memory.id}/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from("snapbook-photos")
-        .upload(storagePath, file);
+        .upload(storagePath, uploadBlob);
 
       if (uploadError) {
         console.error("Upload error:", uploadError);
@@ -226,7 +251,7 @@ export function MemoryCard({
             <input
               ref={fileInputRef}
               type="file"
-              accept="image/*"
+              accept="image/*,.heic,.heif"
               multiple
               onChange={(e) => {
                 if (e.target.files) handleUploadFiles(e.target.files);
