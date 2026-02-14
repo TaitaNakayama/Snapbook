@@ -78,8 +78,12 @@ export function MemoryCard({
             body: formData,
           });
           if (!res.ok) {
-            const errText = await res.text();
-            throw new Error(errText || res.statusText);
+            let errMsg = res.statusText;
+            try {
+              const body = await res.json();
+              errMsg = body.error || errMsg;
+            } catch { /* not JSON */ }
+            throw new Error(errMsg);
           }
           uploadBlob = await res.blob();
           ext = "jpg";
