@@ -71,17 +71,21 @@ export function MemoryCard({
       if (isHeic(file)) {
         try {
           setConverting(true);
-          const heic2any = (await import("heic2any")).default;
-          const converted = await heic2any({
-            blob: file,
-            toType: "image/jpeg",
-            quality: 0.85,
+          const formData = new FormData();
+          formData.append("file", file);
+          const res = await fetch("/api/convert-heic", {
+            method: "POST",
+            body: formData,
           });
-          uploadBlob = Array.isArray(converted) ? converted[0] : converted;
+          if (!res.ok) {
+            const errText = await res.text();
+            throw new Error(errText || res.statusText);
+          }
+          uploadBlob = await res.blob();
           ext = "jpg";
         } catch (err) {
           const msg = err instanceof Error ? err.message : JSON.stringify(err);
-          console.error("HEIC conversion error:", msg, "| file.type:", file.type, "| file.name:", file.name, "| file.size:", file.size);
+          console.error("HEIC conversion error:", msg);
           setUploadError(`Failed to convert HEIC: ${msg}`);
           continue;
         } finally {
