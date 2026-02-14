@@ -18,9 +18,11 @@ const rotations = [
 export function ScrapbookView({
   scrapbook,
   memories,
+  isSharedView = false,
 }: {
   scrapbook: Scrapbook;
   memories: MemoryWithPhotos[];
+  isSharedView?: boolean;
 }) {
   const router = useRouter();
   const supabase = createClient();
@@ -35,14 +37,16 @@ export function ScrapbookView({
   return (
     <div className="scrapbook-bg min-h-screen">
       {/* Nav */}
-      <nav className="fixed top-4 left-4 z-50">
-        <button
-          onClick={() => router.push(`/scrapbook/${scrapbook.id}/edit`)}
-          className="bg-white/80 backdrop-blur-sm text-brown-deep text-sm px-4 py-2 rounded-full shadow-md hover:bg-white transition-colors cursor-pointer"
-        >
-          &larr; Edit
-        </button>
-      </nav>
+      {!isSharedView && (
+        <nav className="fixed top-4 left-4 z-50">
+          <button
+            onClick={() => router.push(`/scrapbook/${scrapbook.id}/edit`)}
+            className="bg-white/80 backdrop-blur-sm text-brown-deep text-sm px-4 py-2 rounded-full shadow-md hover:bg-white transition-colors cursor-pointer"
+          >
+            &larr; Edit
+          </button>
+        </nav>
+      )}
 
       {/* Title page */}
       <section className="min-h-screen flex flex-col items-center justify-center px-4 text-center">
@@ -162,12 +166,14 @@ export function ScrapbookView({
             <p className="font-handwritten text-3xl text-brown-deep/30">
               No memories yet...
             </p>
-            <button
-              onClick={() => router.push(`/scrapbook/${scrapbook.id}/edit`)}
-              className="mt-4 text-brown-warm hover:underline cursor-pointer"
-            >
-              Add your first memory
-            </button>
+            {!isSharedView && (
+              <button
+                onClick={() => router.push(`/scrapbook/${scrapbook.id}/edit`)}
+                className="mt-4 text-brown-warm hover:underline cursor-pointer"
+              >
+                Add your first memory
+              </button>
+            )}
           </div>
         )}
 

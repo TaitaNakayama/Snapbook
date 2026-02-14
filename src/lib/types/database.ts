@@ -8,6 +8,7 @@ export type Database = {
           title: string;
           name_a: string;
           name_b: string;
+          share_token: string | null;
           created_at: string;
         };
         Insert: {
@@ -16,6 +17,7 @@ export type Database = {
           title: string;
           name_a: string;
           name_b: string;
+          share_token?: string | null;
           created_at?: string;
         };
         Update: {
@@ -24,6 +26,7 @@ export type Database = {
           title?: string;
           name_a?: string;
           name_b?: string;
+          share_token?: string | null;
           created_at?: string;
         };
         Relationships: [];
@@ -106,7 +109,24 @@ export type Database = {
       };
     };
     Views: Record<string, never>;
-    Functions: Record<string, never>;
+    Functions: {
+      get_shared_scrapbook: {
+        Args: { token: string };
+        Returns: {
+          id: string;
+          user_id: string;
+          title: string;
+          name_a: string;
+          name_b: string;
+          created_at: string;
+          share_token: string;
+        }[];
+      };
+      get_shared_memories: {
+        Args: { token: string };
+        Returns: unknown;
+      };
+    };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;
   };
