@@ -80,7 +80,7 @@ export function MemoryCard({
           uploadBlob = Array.isArray(converted) ? converted[0] : converted;
           ext = "jpg";
         } catch (err) {
-          const msg = err instanceof Error ? err.message : String(err);
+          const msg = err instanceof Error ? err.message : JSON.stringify(err);
           console.error("HEIC conversion error:", msg, "| file.type:", file.type, "| file.name:", file.name, "| file.size:", file.size);
           setUploadError(`Failed to convert HEIC: ${msg}`);
           continue;
