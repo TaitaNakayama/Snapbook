@@ -34,6 +34,7 @@ export function MemoryCard({
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [converting, setConverting] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
 
   const handleSave = async () => {
@@ -58,6 +59,7 @@ export function MemoryCard({
 
   const handleUploadFiles = async (files: FileList | File[]) => {
     setUploading(true);
+    setUploadError(null);
     const newPhotos: MemoryPhoto[] = [];
 
     for (const file of Array.from(files)) {
@@ -78,7 +80,9 @@ export function MemoryCard({
           uploadBlob = Array.isArray(converted) ? converted[0] : converted;
           ext = "jpg";
         } catch (err) {
-          console.error("HEIC conversion error:", err);
+          const msg = err instanceof Error ? err.message : String(err);
+          console.error("HEIC conversion error:", msg, "| file.type:", file.type, "| file.name:", file.name, "| file.size:", file.size);
+          setUploadError(`Failed to convert HEIC: ${msg}`);
           continue;
         } finally {
           setConverting(false);
@@ -273,6 +277,9 @@ export function MemoryCard({
               </p>
             )}
           </div>
+          {uploadError && (
+            <p className="text-sm text-red-500 mt-2">{uploadError}</p>
+          )}
         </div>
 
         {/* Save button */}
