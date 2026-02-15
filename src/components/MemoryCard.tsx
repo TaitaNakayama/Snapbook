@@ -65,6 +65,11 @@ export function MemoryCard({
     for (const file of Array.from(files)) {
       if (!file.type.startsWith("image/") && !isHeic(file)) continue;
 
+      if (file.size > 20 * 1024 * 1024) {
+        setUploadError(`"${file.name}" is too large (${Math.round(file.size / 1024 / 1024)}MB). Maximum is 20MB.`);
+        continue;
+      }
+
       let uploadBlob: Blob = file;
       let ext = file.name.split(".").pop() || "jpg";
 

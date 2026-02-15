@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import sharp from "sharp";
+
+// Force Node.js runtime — heic-convert uses WASM which requires Node, not Edge.
+export const runtime = "nodejs";
+
+const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20 MB
 
 export async function POST(req: NextRequest) {
   try {
@@ -10,10 +14,27 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 });
     }
 
-    const buffer = Buffer.from(await file.arrayBuffer());
-    const jpeg = await sharp(buffer).jpeg({ quality: 85 }).toBuffer();
+    if (file.size > MAX_FILE_SIZE) {
+      return NextResponse.json(
+        {
+          error: `File too large (${Math.round(file.size / 1024 / 1024)}MB). Maximum is 20MB.`,
+        },
+        { status: 413 }
+      );
+    }
 
-    return new NextResponse(new Uint8Array(jpeg), {
+    const inputBuffer = new Uint8Array(await file.arrayBuffer());
+
+    // heic-convert bundles its own libheif WASM with HEVC decoder support,
+    // unlike sharp on Vercel which is compiled without HEVC.
+    const convert = (await import("heic-convert")).default;
+    const jpegBuffer = await convert({
+      buffer: inputBuffer,
+      format: "JPEG",
+      quality: 0.85,
+    });
+
+    return new NextResponse(Buffer.from(jpegBuffer), {
       headers: { "Content-Type": "image/jpeg" },
     });
   } catch (err) {
