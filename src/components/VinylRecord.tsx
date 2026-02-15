@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import type { MemoryWithPhotos } from "@/lib/types/database";
 
 function extractSpotifyTrackId(url: string): string | null {
@@ -9,26 +8,16 @@ function extractSpotifyTrackId(url: string): string | null {
 }
 
 export function VinylRecord({ memory }: { memory: MemoryWithPhotos }) {
-  const [spinning, setSpinning] = useState(false);
   const trackId = memory.song_url
     ? extractSpotifyTrackId(memory.song_url)
     : null;
 
   return (
     <div className="flex flex-col items-center">
-      {/* The vinyl record */}
-      <button
-        onClick={() => setSpinning(!spinning)}
-        className="relative w-48 h-48 sm:w-56 sm:h-56 cursor-pointer group"
-        aria-label={spinning ? "Pause record" : "Play record"}
-      >
-        {/* Outer record disc */}
-        <div
-          className={`absolute inset-0 rounded-full vinyl-disc ${
-            spinning ? "vinyl-spin" : "vinyl-paused"
-          }`}
-        >
-          {/* Album art in center */}
+      {/* The vinyl record — spins automatically */}
+      <div className="relative w-48 h-48 sm:w-56 sm:h-56">
+        <div className="absolute inset-0 rounded-full vinyl-disc vinyl-spin">
+          {/* Album art in center — spins with the record */}
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="w-[40%] h-[40%] rounded-full overflow-hidden border-2 border-black/30 z-10">
               {memory.song_album_art_url ? (
@@ -48,14 +37,7 @@ export function VinylRecord({ memory }: { memory: MemoryWithPhotos }) {
           {/* Center hole */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-parchment z-20" />
         </div>
-
-        {/* Play/pause overlay on hover */}
-        <div className="absolute inset-0 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/10 z-30">
-          <span className="text-white text-3xl drop-shadow-lg">
-            {spinning ? "\u23F8" : "\u25B6"}
-          </span>
-        </div>
-      </button>
+      </div>
 
       {/* Song info */}
       <div className="mt-4 text-center">
