@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { Scrapbook, MemoryWithPhotos } from "@/lib/types/database";
+import { VinylRecord } from "@/components/VinylRecord";
 
 // Deterministic rotation based on index for visual variety
 const rotations = [
@@ -91,61 +92,46 @@ export function ScrapbookView({
               </p>
             )}
 
-            {/* Photos as polaroids */}
-            {memory.memory_photos.length > 0 && (
-              <div className="flex flex-wrap justify-center gap-6 mb-6">
-                {memory.memory_photos.map((photo, photoIdx) => (
-                  <div
-                    key={photo.id}
-                    className={`polaroid ${rotations[(idx + photoIdx) % rotations.length]} hover:rotate-0 transition-transform duration-300`}
-                    style={{ maxWidth: memory.memory_photos.length === 1 ? "380px" : "280px" }}
-                  >
-                    {/* Tape decoration on top */}
-                    <div className="tape -top-3 left-1/2 -translate-x-1/2 -rotate-1 rounded-sm" />
-                    <img
-                      src={getPublicUrl(photo.storage_path)}
-                      alt={photo.caption || "Memory"}
-                      className="w-full aspect-[4/3] object-cover"
-                    />
-                    {photo.caption && (
-                      <p className="font-handwritten text-center text-brown-deep/70 text-lg mt-2">
-                        {photo.caption}
-                      </p>
-                    )}
+            {memory.type === "song" ? (
+              /* Song memory: vinyl record */
+              <VinylRecord memory={memory} />
+            ) : (
+              <>
+                {/* Photos as polaroids */}
+                {memory.memory_photos.length > 0 && (
+                  <div className="flex flex-wrap justify-center gap-6 mb-6">
+                    {memory.memory_photos.map((photo, photoIdx) => (
+                      <div
+                        key={photo.id}
+                        className={`polaroid ${rotations[(idx + photoIdx) % rotations.length]} hover:rotate-0 transition-transform duration-300`}
+                        style={{ maxWidth: memory.memory_photos.length === 1 ? "380px" : "280px" }}
+                      >
+                        {/* Tape decoration on top */}
+                        <div className="tape -top-3 left-1/2 -translate-x-1/2 -rotate-1 rounded-sm" />
+                        <img
+                          src={getPublicUrl(photo.storage_path)}
+                          alt={photo.caption || "Memory"}
+                          className="w-full aspect-[4/3] object-cover"
+                        />
+                        {photo.caption && (
+                          <p className="font-handwritten text-center text-brown-deep/70 text-lg mt-2">
+                            {photo.caption}
+                          </p>
+                        )}
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            )}
-
-            {/* Note */}
-            {memory.note && (
-              <div className="max-w-lg mx-auto text-center">
-                <p className="font-handwritten text-xl sm:text-2xl text-brown-deep leading-relaxed">
-                  {memory.note}
-                </p>
-              </div>
-            )}
-
-            {/* Song */}
-            {memory.song_title && (
-              <div className="mt-4 text-center">
-                <p className="text-sm text-brown-deep/50 italic">
-                  &ldquo;{memory.song_title}&rdquo;
-                  {memory.song_artist && (
-                    <span> &mdash; {memory.song_artist}</span>
-                  )}
-                </p>
-                {memory.song_url && (
-                  <a
-                    href={memory.song_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm text-brown-warm hover:underline"
-                  >
-                    Listen &rarr;
-                  </a>
                 )}
-              </div>
+
+                {/* Note */}
+                {memory.note && (
+                  <div className="max-w-lg mx-auto text-center">
+                    <p className="font-handwritten text-xl sm:text-2xl text-brown-deep leading-relaxed">
+                      {memory.note}
+                    </p>
+                  </div>
+                )}
+              </>
             )}
 
             {/* Divider */}

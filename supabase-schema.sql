@@ -18,12 +18,15 @@ create table public.scrapbooks (
 create table public.memories (
   id uuid primary key default gen_random_uuid(),
   scrapbook_id uuid not null references public.scrapbooks(id) on delete cascade,
+  type text not null default 'note',
   date date,
   note text not null default '',
   song_title text,
   song_artist text,
   song_url text,
-  created_at timestamptz not null default now()
+  song_album_art_url text,
+  created_at timestamptz not null default now(),
+  constraint memories_type_check check (type in ('note', 'song'))
 );
 
 create table public.memory_photos (

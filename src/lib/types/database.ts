@@ -35,33 +35,39 @@ export type Database = {
         Row: {
           id: string;
           scrapbook_id: string;
+          type: "note" | "song";
           date: string | null;
           note: string;
           song_title: string | null;
           song_artist: string | null;
           song_url: string | null;
+          song_album_art_url: string | null;
           sort_order: number;
           created_at: string;
         };
         Insert: {
           id?: string;
           scrapbook_id: string;
+          type?: "note" | "song";
           date?: string | null;
-          note: string;
+          note?: string;
           song_title?: string | null;
           song_artist?: string | null;
           song_url?: string | null;
+          song_album_art_url?: string | null;
           sort_order?: number;
           created_at?: string;
         };
         Update: {
           id?: string;
           scrapbook_id?: string;
+          type?: "note" | "song";
           date?: string | null;
           note?: string;
           song_title?: string | null;
           song_artist?: string | null;
           song_url?: string | null;
+          song_album_art_url?: string | null;
           sort_order?: number;
           created_at?: string;
         };

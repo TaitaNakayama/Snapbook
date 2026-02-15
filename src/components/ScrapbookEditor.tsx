@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { Scrapbook, MemoryWithPhotos } from "@/lib/types/database";
 import { MemoryCard } from "@/components/MemoryCard";
+import { SongMemoryCard } from "@/components/SongMemoryCard";
 
 export function ScrapbookEditor({
   scrapbook: initialScrapbook,
@@ -43,6 +44,23 @@ export function ScrapbookEditor({
       .from("memories")
       .insert({
         scrapbook_id: scrapbook.id,
+        note: "",
+      } as never)
+      .select("*, memory_photos(*)")
+      .single()
+      .returns<MemoryWithPhotos>();
+
+    if (data) {
+      setMemories([...memories, data]);
+    }
+  };
+
+  const handleAddSongMemory = async () => {
+    const { data } = await supabase
+      .from("memories")
+      .insert({
+        scrapbook_id: scrapbook.id,
+        type: "song",
         note: "",
       } as never)
       .select("*, memory_photos(*)")
@@ -173,12 +191,20 @@ export function ScrapbookEditor({
           <h2 className="font-display text-xl font-semibold text-brown-deep">
             Memories
           </h2>
-          <button
-            onClick={handleAddMemory}
-            className="bg-brown-warm hover:bg-brown-warm/90 text-white rounded-md px-4 py-2 text-sm font-medium transition-colors cursor-pointer"
-          >
-            + Add Memory
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={handleAddMemory}
+              className="bg-brown-warm hover:bg-brown-warm/90 text-white rounded-md px-4 py-2 text-sm font-medium transition-colors cursor-pointer"
+            >
+              + Add Memory
+            </button>
+            <button
+              onClick={handleAddSongMemory}
+              className="bg-brown-deep hover:bg-brown-deep/90 text-white rounded-md px-4 py-2 text-sm font-medium transition-colors cursor-pointer"
+            >
+              + Add Song
+            </button>
+          </div>
         </div>
 
         {memories.length === 0 ? (
@@ -229,23 +255,37 @@ export function ScrapbookEditor({
                   </button>
                 </div>
 
-                <MemoryCard
-                  memory={memory}
-                  scrapbookId={scrapbook.id}
-                  userId={userId}
-                  onUpdate={handleUpdateMemory}
-                  onDelete={() => handleDeleteMemory(memory.id)}
-                />
+                {memory.type === "song" ? (
+                  <SongMemoryCard
+                    memory={memory}
+                    onUpdate={handleUpdateMemory}
+                    onDelete={() => handleDeleteMemory(memory.id)}
+                  />
+                ) : (
+                  <MemoryCard
+                    memory={memory}
+                    scrapbookId={scrapbook.id}
+                    userId={userId}
+                    onUpdate={handleUpdateMemory}
+                    onDelete={() => handleDeleteMemory(memory.id)}
+                  />
+                )}
               </div>
             ))}
 
-            {/* Bottom add memory button */}
-            <div className="flex justify-center pt-4">
+            {/* Bottom add buttons */}
+            <div className="flex justify-center gap-3 pt-4">
               <button
                 onClick={handleAddMemory}
                 className="bg-brown-warm hover:bg-brown-warm/90 text-white rounded-md px-5 py-2.5 text-sm font-medium transition-colors cursor-pointer"
               >
                 + Add Memory
+              </button>
+              <button
+                onClick={handleAddSongMemory}
+                className="bg-brown-deep hover:bg-brown-deep/90 text-white rounded-md px-5 py-2.5 text-sm font-medium transition-colors cursor-pointer"
+              >
+                + Add Song
               </button>
             </div>
           </div>

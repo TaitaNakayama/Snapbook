@@ -28,9 +28,6 @@ export function MemoryCard({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [note, setNote] = useState(memory.note);
   const [date, setDate] = useState(memory.date ?? "");
-  const [songTitle, setSongTitle] = useState(memory.song_title ?? "");
-  const [songArtist, setSongArtist] = useState(memory.song_artist ?? "");
-  const [songUrl, setSongUrl] = useState(memory.song_url ?? "");
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [converting, setConverting] = useState(false);
@@ -44,9 +41,6 @@ export function MemoryCard({
       .update({
         note,
         date: date || null,
-        song_title: songTitle || null,
-        song_artist: songArtist || null,
-        song_url: songUrl || null,
       } as never)
       .eq("id", memory.id)
       .select("*, memory_photos(*)")
@@ -199,33 +193,6 @@ export function MemoryCard({
             className="w-full rounded-md border border-parchment-dark/30 px-3 py-2 text-brown-deep bg-white focus:outline-none focus:ring-2 focus:ring-brown-warm/30 resize-none"
           />
         </div>
-
-        {/* Song */}
-        <details className="group">
-          <summary className="text-sm font-medium text-brown-deep/70 cursor-pointer hover:text-brown-deep transition-colors">
-            Song (optional)
-          </summary>
-          <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <input
-              value={songTitle}
-              onChange={(e) => setSongTitle(e.target.value)}
-              placeholder="Song title"
-              className="rounded-md border border-parchment-dark/30 px-3 py-2 text-sm text-brown-deep bg-white focus:outline-none focus:ring-2 focus:ring-brown-warm/30"
-            />
-            <input
-              value={songArtist}
-              onChange={(e) => setSongArtist(e.target.value)}
-              placeholder="Artist"
-              className="rounded-md border border-parchment-dark/30 px-3 py-2 text-sm text-brown-deep bg-white focus:outline-none focus:ring-2 focus:ring-brown-warm/30"
-            />
-            <input
-              value={songUrl}
-              onChange={(e) => setSongUrl(e.target.value)}
-              placeholder="Link (Spotify, YouTube, etc.)"
-              className="rounded-md border border-parchment-dark/30 px-3 py-2 text-sm text-brown-deep bg-white focus:outline-none focus:ring-2 focus:ring-brown-warm/30"
-            />
-          </div>
-        </details>
 
         {/* Photos */}
         <div>
