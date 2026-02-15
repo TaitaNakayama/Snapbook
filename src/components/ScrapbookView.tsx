@@ -171,6 +171,18 @@ export function ScrapbookView({
             </p>
           </div>
         )}
+
+        {/* CTA for shared view */}
+        {isSharedView && (
+          <div className="text-center pb-16">
+            <a
+              href="/"
+              className="inline-block bg-brown-warm hover:bg-brown-warm/90 text-white font-medium rounded-full px-8 py-3 text-sm shadow-md transition-colors"
+            >
+              Make your own!
+            </a>
+          </div>
+        )}
       </section>
     </div>
   );
