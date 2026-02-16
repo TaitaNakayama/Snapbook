@@ -113,15 +113,13 @@ export function SongMemoryCard({
               placeholder="https://open.spotify.com/track/..."
               className="flex-1 rounded-md border border-parchment-dark/30 px-3 py-2 text-sm text-brown-deep bg-white focus:outline-none focus:ring-2 focus:ring-brown-warm/30"
             />
-            {isSpotify && (
-              <button
-                onClick={handleFetchMetadata}
-                disabled={fetching}
-                className="bg-brown-warm hover:bg-brown-warm/90 text-white rounded-md px-4 py-2 text-sm font-medium transition-colors disabled:opacity-50 cursor-pointer whitespace-nowrap"
-              >
-                {fetching ? "Fetching..." : "Fetch"}
-              </button>
-            )}
+            <button
+              onClick={handleFetchMetadata}
+              disabled={fetching || !isSpotify}
+              className="bg-brown-warm hover:bg-brown-warm/90 text-white rounded-md px-4 py-2 text-sm font-medium transition-colors disabled:opacity-50 cursor-pointer whitespace-nowrap"
+            >
+              {fetching ? "Fetching..." : "Fetch"}
+            </button>
           </div>
           {error && <p className="text-sm text-red-500 mt-1">{error}</p>}
         </div>

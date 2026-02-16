@@ -39,36 +39,52 @@ export function ScrapbookEditor({
     setSaving(false);
   };
 
-  const handleAddMemory = async () => {
+  const handleAddMemory = async (position: "top" | "bottom") => {
+    const sortOrder =
+      position === "top"
+        ? Math.min(0, ...memories.map((m) => m.sort_order)) - 1
+        : Math.max(0, ...memories.map((m) => m.sort_order)) + 1;
+
     const { data } = await supabase
       .from("memories")
       .insert({
         scrapbook_id: scrapbook.id,
         note: "",
+        sort_order: sortOrder,
       } as never)
       .select("*, memory_photos(*)")
       .single()
       .returns<MemoryWithPhotos>();
 
     if (data) {
-      setMemories([...memories, data]);
+      setMemories(
+        position === "top" ? [data, ...memories] : [...memories, data]
+      );
     }
   };
 
-  const handleAddSongMemory = async () => {
+  const handleAddSongMemory = async (position: "top" | "bottom") => {
+    const sortOrder =
+      position === "top"
+        ? Math.min(0, ...memories.map((m) => m.sort_order)) - 1
+        : Math.max(0, ...memories.map((m) => m.sort_order)) + 1;
+
     const { data } = await supabase
       .from("memories")
       .insert({
         scrapbook_id: scrapbook.id,
         type: "song",
         note: "",
+        sort_order: sortOrder,
       } as never)
       .select("*, memory_photos(*)")
       .single()
       .returns<MemoryWithPhotos>();
 
     if (data) {
-      setMemories([...memories, data]);
+      setMemories(
+        position === "top" ? [data, ...memories] : [...memories, data]
+      );
     }
   };
 
@@ -193,13 +209,13 @@ export function ScrapbookEditor({
           </h2>
           <div className="flex gap-2">
             <button
-              onClick={handleAddMemory}
+              onClick={() => handleAddMemory("top")}
               className="bg-brown-warm hover:bg-brown-warm/90 text-white rounded-md px-4 py-2 text-sm font-medium transition-colors cursor-pointer"
             >
               + Add Memory
             </button>
             <button
-              onClick={handleAddSongMemory}
+              onClick={() => handleAddSongMemory("top")}
               className="bg-brown-deep hover:bg-brown-deep/90 text-white rounded-md px-4 py-2 text-sm font-medium transition-colors cursor-pointer"
             >
               + Add Song
@@ -276,13 +292,13 @@ export function ScrapbookEditor({
             {/* Bottom add buttons */}
             <div className="flex justify-center gap-3 pt-4">
               <button
-                onClick={handleAddMemory}
+                onClick={() => handleAddMemory("bottom")}
                 className="bg-brown-warm hover:bg-brown-warm/90 text-white rounded-md px-5 py-2.5 text-sm font-medium transition-colors cursor-pointer"
               >
                 + Add Memory
               </button>
               <button
-                onClick={handleAddSongMemory}
+                onClick={() => handleAddSongMemory("bottom")}
                 className="bg-brown-deep hover:bg-brown-deep/90 text-white rounded-md px-5 py-2.5 text-sm font-medium transition-colors cursor-pointer"
               >
                 + Add Song
