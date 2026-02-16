@@ -16,6 +16,7 @@ export async function GET(req: NextRequest) {
   }
 
   try {
+    // Fetch oEmbed for title + album art
     const oembedRes = await fetch(
       `https://open.spotify.com/oembed?url=${encodeURIComponent(spotifyUrl)}`
     );
@@ -29,9 +30,30 @@ export async function GET(req: NextRequest) {
 
     const data = await oembedRes.json();
 
+    // Fetch the track page to extract artist from meta description
+    // Format: "Artist Name · Album · Song · Year"
+    let artist: string | null = null;
+    try {
+      const pageRes = await fetch(spotifyUrl, {
+        headers: { "User-Agent": "Mozilla/5.0" },
+      });
+      if (pageRes.ok) {
+        const html = await pageRes.text();
+        const match = html.match(
+          /<meta property="og:description" content="([^"]+)"/
+        );
+        if (match) {
+          // First segment before " · " is the artist name
+          artist = match[1].split(" \u00B7 ")[0] || null;
+        }
+      }
+    } catch {
+      // Artist extraction is best-effort; continue without it
+    }
+
     return NextResponse.json({
       title: data.title,
-      artist: data.author_name ?? null,
+      artist,
       thumbnail_url: data.thumbnail_url,
     });
   } catch {
