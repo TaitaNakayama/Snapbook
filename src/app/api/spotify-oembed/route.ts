@@ -31,6 +31,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({
       title: data.title,
+      artist: data.author_name ?? null,
       thumbnail_url: data.thumbnail_url,
     });
   } catch {

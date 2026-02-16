@@ -43,6 +43,7 @@ export function SongMemoryCard({
       }
       const data = await res.json();
       setTitle(data.title);
+      if (data.artist) setArtist(data.artist);
       setAlbumArt(data.thumbnail_url);
     } catch (err) {
       setError(
