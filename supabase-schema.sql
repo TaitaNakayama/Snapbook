@@ -12,6 +12,7 @@ create table public.scrapbooks (
   title text not null,
   name_a text not null,
   name_b text not null,
+  share_token uuid unique default gen_random_uuid(),
   created_at timestamptz not null default now()
 );
 
@@ -25,6 +26,7 @@ create table public.memories (
   song_artist text,
   song_url text,
   song_album_art_url text,
+  sort_order integer not null default 0,
   created_at timestamptz not null default now(),
   constraint memories_type_check check (type in ('note', 'song'))
 );
@@ -185,3 +187,73 @@ create policy "Users can delete own photos"
 create policy "Public read access for snapbook photos"
   on storage.objects for select
   using (bucket_id = 'snapbook-photos');
+
+-- 4) RPC FUNCTIONS
+-- ----------------
+
+-- Get scrapbook by share token (bypasses RLS for public shared links)
+create or replace function public.get_shared_scrapbook(token uuid)
+returns json
+language plpgsql
+security definer
+set search_path to 'public'
+as $function$
+declare
+  result json;
+begin
+  select row_to_json(s) into result
+  from scrapbooks s
+  where s.share_token = token;
+
+  return result;
+end;
+$function$;
+
+-- Get memories for a shared scrapbook (bypasses RLS for public shared links)
+create or replace function public.get_shared_memories(token uuid)
+returns json
+language plpgsql
+security definer
+set search_path to 'public'
+as $function$
+declare
+  scrapbook_uuid uuid;
+  result json;
+begin
+  select s.id into scrapbook_uuid
+  from scrapbooks s
+  where s.share_token = token;
+
+  if scrapbook_uuid is null then
+    return '[]'::json;
+  end if;
+
+  select json_agg(row_to_json(mem_with_photos) order by mem_with_photos.sort_order, mem_with_photos.date, mem_with_photos.created_at)
+  into result
+  from (
+    select
+      m.id,
+      m.scrapbook_id,
+      m.type,
+      m.date,
+      m.note,
+      m.song_title,
+      m.song_artist,
+      m.song_url,
+      m.song_album_art_url,
+      m.sort_order,
+      m.created_at,
+      coalesce(
+        (select json_agg(row_to_json(p))
+         from memory_photos p
+         where p.memory_id = m.id),
+        '[]'::json
+      ) as memory_photos
+    from memories m
+    where m.scrapbook_id = scrapbook_uuid
+    order by m.sort_order asc, m.date asc nulls last, m.created_at asc
+  ) mem_with_photos;
+
+  return coalesce(result, '[]'::json);
+end;
+$function$;
